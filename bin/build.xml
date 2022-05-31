@@ -7,30 +7,9 @@
          so unset values are treated as empty. Without this, ant expressions such as ${sf.source.username}
          will be treated literally.
     -->
-    <!--
-    1. Write retrieve source
-    3. Write retrieve staged
-    5. Write test deploy staged
-
-    4. Write deploy staged
-    2. Write retrieve target
-
-   -->
-   <!-- Variables -->
-   <!--
-   SourceDirectory
-   TargetDirectory
-   StagedDirectory
-   PackageBuild
-  -->
-
-  <property name="SourceDirectory" value= "./${sf.source.orgname}_To_${sf.target.orgname}\Source"/>
-  <property name="StagedDirectory" value= "./${sf.source.orgname}_To_${sf.target.orgname}\Staged"/>
-  <property name="TargetDirectory" value= "./${sf.source.orgname}_To_${sf.target.orgname}\Target"/>
-  <!-- <property name="Root" location= "./"/> -->
-  <!-- <property name= value= />
-  <property name= value= />
-  <property name= value= /> -->
+    <property name="SourceDirectory" value= "./${sf.source.orgname}_To_${sf.target.orgname}\Source"/>
+    <property name="StagedDirectory" value= "./${sf.source.orgname}_To_${sf.target.orgname}\Staged"/>
+    <property name="TargetDirectory" value= "./${sf.source.orgname}_To_${sf.target.orgname}\Target"/>
 
 
 
@@ -104,10 +83,8 @@
     </target>
 
     <target name="DeployStaged">
-      <!-- sessionId="${sf.sessionId}" for prod -->
+      <!-- NoTestRun, no test classes run-->
       <sf:deploy username="${sf.target.username}" password="${sf.target.password}"  serverurl="${sf.target.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="${StagedDirectory}\${sf.packageBuild}" testLevel="NoTestRun" rollbackOnError="true">
-         <!-- <runTest>JBWebServiceTest</runTest> -->
-      <!-- How to programatically get the Test Classes? -->
       </sf:deploy>
     </target>
 
