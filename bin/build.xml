@@ -1,0 +1,116 @@
+<project name="Sample usage of Salesforce Ant tasks" default="test" basedir="." xmlns:sf="antlib:com.salesforce">
+
+    <property file="build.properties"/>
+    <property environment="env"/>
+
+    <!-- Setting default value for username, password and session id properties to empty string
+         so unset values are treated as empty. Without this, ant expressions such as ${sf.source.username}
+         will be treated literally.
+    -->
+    <!--
+    1. Write retrieve source
+    3. Write retrieve staged
+    5. Write test deploy staged
+
+    4. Write deploy staged
+    2. Write retrieve target
+
+   -->
+   <!-- Variables -->
+   <!--
+   SourceDirectory
+   TargetDirectory
+   StagedDirectory
+   PackageBuild
+  -->
+
+  <property name="SourceDirectory" value= "./${sf.source.orgname}_To_${sf.target.orgname}\Source"/>
+  <property name="StagedDirectory" value= "./${sf.source.orgname}_To_${sf.target.orgname}\Staged"/>
+  <property name="TargetDirectory" value= "./${sf.source.orgname}_To_${sf.target.orgname}\Target"/>
+  <!-- <property name="Root" location= "./"/> -->
+  <!-- <property name= value= />
+  <property name= value= />
+  <property name= value= /> -->
+
+
+
+    <condition property="sf.source.username" value=""> <not> <isset property="sf.source.username"/> </not> </condition>
+    <condition property="sf.source.password" value=""> <not> <isset property="sf.source.password"/> </not> </condition>
+    <condition property="sf.source.sessionId" value=""> <not> <isset property="sf.source.sessionId"/> </not> </condition>
+    <condition property="sf.target.username" value=""> <not> <isset property="sf.target.username"/> </not> </condition>
+    <condition property="sf.target.password" value=""> <not> <isset property="sf.target.password"/> </not> </condition>
+    <condition property="sf.target.sessionId" value=""> <not> <isset property="sf.target.sessionId"/> </not> </condition>
+
+    <taskdef resource="com/salesforce/antlib.xml" uri="antlib:com.salesforce">
+        <classpath>
+            <pathelement location="../ant-salesforce.jar"/>
+        </classpath>
+    </taskdef>
+
+
+    <target name="RetrieveSource" description="Retrieves metadata from source for a diff compare">
+      <echo message="package ${sf.pkgName} retrieve from ${sf.source.orgname} into ${SourceDirectory}\${sf.packageBuild}\"/>
+      <mkdir dir="${SourceDirectory}\${sf.packageBuild}"/>
+      <copy file="./${sf.pkgName}" tofile="${SourceDirectory}\${sf.packageBuild}\package.xml" overwrite="true"/>
+      <sf:retrieve username="${sf.source.username}" password="${sf.source.password}" sessionId="${sf.source.sessionId}" serverurl="${sf.source.serverurl}" maxPoll="${sf.maxPoll}" retrieveTarget="${SourceDirectory}\${sf.packageBuild}" unpackaged="${sf.pkgName}"/>
+      <echo message="package ${sf.pkgName} retrieve from ${sf.source.orgname} into ${SourceDirectory}\${sf.packageBuild}\ complete"/>
+    </target>
+
+    <target name="RetrieveStaged" description="Retrieves metadata from source for a deploy">
+      <echo message="package ${sf.pkgName} retrieve from ${sf.source.orgname} into ${StagedDirectory}\${sf.packageBuild}\"/>
+      <mkdir dir="${StagedDirectory}\${sf.packageBuild}"/>
+      <copy file="./${sf.pkgName}" tofile="${StagedDirectory}\${sf.packageBuild}\package.xml" overwrite="true"/>
+      <sf:retrieve username="${sf.source.username}" password="${sf.source.password}" sessionId="${sf.source.sessionId}" serverurl="${sf.source.serverurl}" maxPoll="${sf.maxPoll}" retrieveTarget="${StagedDirectory}\${sf.packageBuild}" unpackaged="${sf.pkgName}"/>
+      <echo message="package ${sf.pkgName} retrieve from ${sf.source.orgname} into ${StagedDirectory}\${sf.packageBuild}\ complete"/>
+    </target>
+
+    <target name="RetrieveTarget" description="Retrieves metadata from source for a diff compare">
+      <echo message="package ${sf.pkgName} retrieve from ${sf.target.orgname} into ${TargetDirectory}\${sf.packageBuild}\"/>
+      <mkdir dir="${TargetDirectory}\${sf.packageBuild}"/>
+      <copy file="./${sf.pkgName}" tofile="${TargetDirectory}\${sf.packageBuild}\package.xml" overwrite="true"/>
+      <sf:retrieve username="${sf.target.username}" password="${sf.target.password}" sessionId="${sf.target.sessionId}" serverurl="${sf.target.serverurl}" maxPoll="${sf.maxPoll}" retrieveTarget="${TargetDirectory}\${sf.packageBuild}" unpackaged="${sf.pkgName}"/>
+      <echo message="package ${sf.pkgName} retrieve from ${sf.target.orgname} into ${TargetDirectory}\${sf.packageBuild}\ complete"/>
+    </target>
+
+    <!-- <target name="help">
+      <exec executable="cmd">
+        <arg value="/c"/>
+        <arg value="ant.bat"/>
+        <arg value="-p"/>
+      </exec>
+    </target> -->
+
+    <target name="Diff">
+      <exec executable="C:\ProgramData\chocolatey\lib\winmerge.portable\tools\WinMerge\WinMergeU.exe">
+        <arg value="${SourceDirectory}\${sf.packageBuild}"/>
+        <arg value="${TargetDirectory}\${sf.packageBuild}"/>
+      </exec>
+    </target>
+
+    <target name="RetrieveDiff">
+      <antcall target="RetrieveSource">
+        <!-- <param name="build.dir" value="tools"/> -->
+      </antcall>
+      <antcall target="RetrieveTarget"/>
+      <antcall target="Diff"/>
+    </target>
+
+    <target name="ValidateStaged">
+      <!-- sessionId="${sf.sessionId}" for prod -->
+      <sf:deploy username="${sf.target.username}" password="${sf.target.password}"  serverurl="${sf.target.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="${StagedDirectory}\${sf.packageBuild}" testLevel="RunSpecifiedTests" rollbackOnError="true" checkOnly="true">
+         <runTest>JBWebServiceTest</runTest>
+      <!-- How to programatically get the Test Classes? -->
+      </sf:deploy>
+    </target>
+
+    <target name="DeployStaged">
+      <!-- sessionId="${sf.sessionId}" for prod -->
+      <sf:deploy username="${sf.target.username}" password="${sf.target.password}"  serverurl="${sf.target.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="${StagedDirectory}\${sf.packageBuild}" testLevel="NoTestRun" rollbackOnError="true">
+         <!-- <runTest>JBWebServiceTest</runTest> -->
+      <!-- How to programatically get the Test Classes? -->
+      </sf:deploy>
+    </target>
+
+
+
+</project>
