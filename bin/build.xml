@@ -32,7 +32,7 @@
       <mkdir dir="${SourceDirectory}\${sf.packageBuild}"/>
       <copy file="./${sf.pkgName}" tofile="${SourceDirectory}\${sf.packageBuild}\package.xml" overwrite="true"/>
       <sf:retrieve username="${sf.source.username}" password="${sf.source.password}" sessionId="${sf.source.sessionId}" serverurl="${sf.source.serverurl}" maxPoll="${sf.maxPoll}" retrieveTarget="${SourceDirectory}\${sf.packageBuild}" unpackaged="${sf.pkgName}"/>
-      <!-- <sf:retrieve username="${sf.source.username}" password="${sf.source.password}" sessionId="${sf.source.sessionId}" serverurl="${sf.source.serverurl}" maxPoll="${sf.maxPoll}" retrieveTarget="${SourceDirectory}\${sf.packageBuild}" unpackaged="${sf.pkgName}" pollWaitMillis="300000"/> -->
+      <!-- <sf:retrieve username="${sf.source.username}" password="${sf.source.password}" sessionId="${sf.source.sessionId}" serverurl="${sf.source.serverurl}" maxPoll="${sf.maxPoll}" retrieveTarget="${SourceDirectory}\${sf.packageBuild}" unpackaged="${sf.pkgName}" pollWaitMillis="100000"/> -->
       <echo message="package ${sf.pkgName} retrieve from ${sf.source.orgname} into ${SourceDirectory}\${sf.packageBuild}\ complete"/>
     </target>
 
@@ -50,7 +50,7 @@
       <mkdir dir="${TargetDirectory}\${sf.packageBuild}"/>
       <copy file="./${sf.pkgName}" tofile="${TargetDirectory}\${sf.packageBuild}\package.xml" overwrite="true"/>
       <sf:retrieve username="${sf.target.username}" password="${sf.target.password}" sessionId="${sf.target.sessionId}" serverurl="${sf.target.serverurl}" maxPoll="${sf.maxPoll}" retrieveTarget="${TargetDirectory}\${sf.packageBuild}" unpackaged="${sf.pkgName}"/>
-      <!-- <sf:retrieve username="${sf.target.username}" password="${sf.target.password}" sessionId="${sf.target.sessionId}" serverurl="${sf.target.serverurl}" maxPoll="${sf.maxPoll}" retrieveTarget="${TargetDirectory}\${sf.packageBuild}" unpackaged="${sf.pkgName}" pollWaitMillis="400000"/> -->
+      <!-- <sf:retrieve username="${sf.target.username}" password="${sf.target.password}" sessionId="${sf.target.sessionId}" serverurl="${sf.target.serverurl}" maxPoll="${sf.maxPoll}" retrieveTarget="${TargetDirectory}\${sf.packageBuild}" unpackaged="${sf.pkgName}" pollWaitMillis="100000"/> -->
       <echo message="package ${sf.pkgName} retrieve from ${sf.target.orgname} into ${TargetDirectory}\${sf.packageBuild}\ complete"/>
     </target>
 
@@ -84,7 +84,9 @@
       <!-- <sf:deploy username="${sf.target.username}" password="${sf.target.password}"  serverurl="${sf.target.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="${StagedDirectory}\${sf.packageBuild}" testLevel="NoTestRun" rollbackOnError="true" checkOnly="true"> -->
       <sf:deploy username="${sf.target.username}" password="${sf.target.password}"  serverurl="${sf.target.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="${StagedDirectory}\${sf.packageBuild}" testLevel="RunSpecifiedTests" rollbackOnError="true" checkOnly="true">
         <!-- <runTest>EvalControllerTest</runTest> -->
-        <runTest>LeadTriggerControllerTest</runTest>
+        <!-- team -->
+        <runTest>LastEvalCompletedBatchTest</runTest>
+        <!-- <runTest>TestEventTrigger</runTest> -->
       <!-- How to programatically get the Test Classes? -->
       </sf:deploy>
     </target>
@@ -93,10 +95,14 @@
       <echo message="package ${sf.pkgName} deploying into ${sf.target.orgname}\"/>
 
       <!-- NoTestRun, no test classes run-->
-      <sf:deploy username="${sf.target.username}" password="${sf.target.password}"  serverurl="${sf.target.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="${StagedDirectory}\${sf.packageBuild}" testLevel="NoTestRun" rollbackOnError="true">
+      <!-- <sf:deploy username="${sf.target.username}" password="${sf.target.password}"  serverurl="${sf.target.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="${StagedDirectory}\${sf.packageBuild}" testLevel="NoTestRun" rollbackOnError="true"> -->
       <!-- <sf:deploy username="${sf.target.username}" password="${sf.target.password}"  serverurl="${sf.target.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="${StagedDirectory}\${sf.packageBuild}" testLevel="RunSpecifiedTests" rollbackOnError="true" checkOnly="true"> -->
-        <!-- <runTest>EvalControllerTest</runTest> -->
-        <!-- <runTest>TestZipCodeLookup</runTest> -->
+      <sf:deploy username="${sf.target.username}" password="${sf.target.password}"  serverurl="${sf.target.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="${StagedDirectory}\${sf.packageBuild}" testLevel="RunSpecifiedTests" rollbackOnError="true">
+        <runTest>EvalControllerTest</runTest>
+
+        <!-- team -->
+        <!-- <runTest>LastEvalCompletedBatchTest</runTest> -->
+        <!-- <runTest>TestEventTrigger</runTest> -->
       </sf:deploy>
     </target>
 
